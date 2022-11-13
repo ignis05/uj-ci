@@ -9,7 +9,25 @@
 		<script src="./bundle.js"></script>
 	</head>
 	<body>
+		<div>
+			<label>Max iterations:</label>
+			<input id="iterations" type="number" value="4000" />
+			<br />
+			<label>Size:</label>
+			<input id="size" type="number" value="250" />
+			<br />
+			<label>Crossover:</label>
+			<input id="crossover" type="number" value="0.3" />
+			<br />
+			<label>Mutation:</label>
+			<input id="mutation" type="number" value="0.3" />
+			<br />
+			<label>Step:</label>
+			<input id="skip" type="number" value="20" />
+      <br />
+		</div>
 		<textarea id="quote" style="width: 300px; height: 100px">
+      
 Insanity is doing the same thing over and over again and expecting different results</textarea
 		>
 		<button id="solve">Solve</button>

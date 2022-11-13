@@ -104,16 +104,16 @@ $(() => {
 
 		$('#results tbody').html('')
 
-		const text = $('#quote').val()
+		const solutionText = $('#quote').val()
 
 		const config = {
-			iterations: 4000,
-			size: 250,
-			crossover: 0.3,
-			mutation: 0.3,
-			skip: 20,
+			iterations: parseFloat($('#iterations').val()),
+			size: parseFloat($('#size').val()),
+			crossover: parseFloat($('#crossover').val()),
+			mutation: parseFloat($('#mutation').val()),
+			skip: parseFloat($('#skip').val()),
 		}
 
-		genetic.evolve(config, { solution: text })
+		genetic.evolve(config, { solution: solutionText })
 	})
 })
