@@ -7,6 +7,7 @@ genetic.optimize = Genetic.Optimize.Maximize
 genetic.select1 = Genetic.Select1.Tournament2
 genetic.select2 = Genetic.Select2.Tournament2
 
+// start with random string that has the same length as text
 genetic.seed = function () {
 	function randomString(len) {
 		var text = ''
@@ -17,7 +18,7 @@ genetic.seed = function () {
 	}
 
 	// create random strings that are equal in length to solution
-	return randomString(this.userData['solution'].length)
+	return randomString(this.userData.solution.length)
 }
 
 genetic.mutate = function (entity) {
@@ -50,13 +51,12 @@ genetic.crossover = function (mother, father) {
 genetic.fitness = function (entity) {
 	var fitness = 0
 
-	var i
-	for (i = 0; i < entity.length; ++i) {
+	for (let i in entity) {
 		// increase fitness for each character that matches
-		if (entity[i] == this.userData['solution'][i]) fitness += 1
+		if (entity[i] == this.userData.solution[i]) fitness += 1
 
 		// award fractions of a point as we get warmer
-		fitness += (127 - Math.abs(entity.charCodeAt(i) - this.userData['solution'].charCodeAt(i))) / 50
+		fitness += (127 - Math.abs(entity.charCodeAt(i) - this.userData.solution.charCodeAt(i))) / 50
 	}
 
 	return fitness
@@ -64,7 +64,7 @@ genetic.fitness = function (entity) {
 
 genetic.generation = function (pop, generation, stats) {
 	// stop running once we've reached the solution
-	return pop[0].entity != this.userData['solution']
+	return pop[0].entity != this.userData.solution
 }
 
 genetic.notification = function (pop, generation, stats, isFinished) {
@@ -78,15 +78,11 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	if (pop != 0 && value == this.last) return
 
 	var solution = []
-	var i
-	for (i = 0; i < value.length; ++i) {
+	for (let i in value) {
 		var diff = value.charCodeAt(i) - this.last.charCodeAt(i)
 		var style = 'background: transparent;'
-		if (diff > 0) {
-			style = 'background: rgb(0,200,50); color: #fff;'
-		} else if (diff < 0) {
-			style = 'background: rgb(0,100,50); color: #fff;'
-		}
+		if (diff > 0) style = 'background: rgb(0,200,50); color: #fff;'
+		else if (diff < 0) style = 'background: rgb(0,100,50); color: #fff;'
 
 		solution.push('<span style="' + style + '">' + value[i] + '</span>')
 	}
@@ -102,11 +98,15 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	this.last = value
 }
 
-$(document).ready(function () {
-	$('#solve').click(function () {
+$(() => {
+	$('#solve').on('click', () => {
+		console.log('starting algorithm')
+
 		$('#results tbody').html('')
 
-		var config = {
+		const text = $('#quote').val()
+
+		const config = {
 			iterations: 4000,
 			size: 250,
 			crossover: 0.3,
@@ -114,10 +114,6 @@ $(document).ready(function () {
 			skip: 20,
 		}
 
-		var userData = {
-			solution: $('#quote').val(),
-		}
-
-		genetic.evolve(config, userData)
+		genetic.evolve(config, { solution: text })
 	})
 })
