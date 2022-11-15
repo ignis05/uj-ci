@@ -1,6 +1,3 @@
-import $ from 'jquery'
-import Genetic from 'genetic-js'
-
 var genetic = Genetic.create()
 
 // aim for highest fitness possible
