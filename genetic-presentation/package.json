@@ -1,8 +1,12 @@
 {
-  "dependencies": {
-    "genetic-js": "^0.1.14",
-    "jquery": "^3.6.1",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^4.10.0"
-  }
+	"scripts": {
+		"dev": "npx webpack watch",
+		"build": "npx webpack"
+	},
+	"dependencies": {
+		"genetic-js": "^0.1.14",
+		"jquery": "^3.6.1",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^4.10.0"
+	}
 }
