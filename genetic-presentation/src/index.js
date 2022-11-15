@@ -16,7 +16,7 @@ genetic.select2 = Genetic.Select2.Tournament2
 genetic.seed = function () {
 	function randomString(len) {
 		var text = ''
-		var charset = 'abcdefghijklmnopqrstuvwxyz0123456789'
+		var charset = 'abcdefghijklmnopqrstuvwxyz0123456789 !@#$%^&*()-+,.'
 		for (var i = 0; i < len; i++) text += charset.charAt(Math.floor(Math.random() * charset.length))
 
 		return text
@@ -86,17 +86,24 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	this.last = this.last || value
 	if (pop != 0 && value == this.last) return
 	var solution = []
+	var charCodes = []
 	for (let i in value) {
 		var diff = value.charCodeAt(i) - this.last.charCodeAt(i)
 		var style = 'background: transparent;'
-		// mark matching characters with green
-		if (value.charCodeAt(i) == this.userData.solution.charCodeAt(i)) style = 'background: #4CAF50; color: #000;'
+
 		// mark characters that changed to higher charcode with blue
 		if (diff > 0) style = 'background: #2196F3; color: #fff;'
 		// mark characters that changed to lower charcode with yellow
 		else if (diff < 0) style = 'background: #FFEB3B; color: #000;'
 
-		solution.push('<span style="' + style + '">' + value[i] + '</span>')
+		// mark matching characters with green
+		if (value.charCodeAt(i) == this.userData.solution.charCodeAt(i)) style = 'background: #4CAF50; color: #000;'
+
+		solution.push(`<span style="${style}">${value[i]}</span>`)
+
+		let code = value.charCodeAt(i).toString()
+		while (code.length < 3) code = '0' + code
+		charCodes.push(`<span style="${style}">${code}</span>`)
 	}
 
 	var buf = ''
@@ -104,6 +111,7 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	buf += '<td>' + generation + '</td>'
 	buf += '<td>' + pop[0].fitness.toPrecision(5) + '</td>'
 	buf += '<td>' + solution.join('') + '</td>'
+	buf += '<td>' + charCodes.join('-') + '</td>'
 	buf += '</tr>'
 	$('#results tbody').prepend(buf)
 
