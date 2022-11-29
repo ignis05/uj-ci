@@ -77,10 +77,11 @@ genetic.fitness = function (entity) {
 	if (isNaN(x) || isNaN(y) || isNaN(r)) return -Infinity // if number failed to be converted to a valid int
 
 	// calculate score
-	let xPenalty = Math.abs(squareSize - (x + r))
-	let yPenalty = Math.abs(squareSize - (y + r))
-	let xPenalty2 = Math.abs(0 - squareSize - (x - r))
-	let yPenalty2 = Math.abs(0 - squareSize - (y - r))
+	const halfSize = squareSize / 2
+	let xPenalty = Math.abs(halfSize - (x + r))
+	let yPenalty = Math.abs(halfSize - (y + r))
+	let xPenalty2 = Math.abs(0 - halfSize - (x - r))
+	let yPenalty2 = Math.abs(0 - halfSize - (y - r))
 	return r - xPenalty - yPenalty - xPenalty2 - yPenalty2
 }
 
@@ -116,11 +117,29 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	let y = (yRaw[0] == '1' ? 1 : -1) * parseInt(yRaw.slice(1), 2)
 	let r = (rRaw[0] == '1' ? 1 : -1) * parseInt(rRaw.slice(1), 2)
 
+	const squareSize = 100
+	let canvas = document.createElement('canvas')
+	// canvas.style = 'border: 1px solid black'
+	canvas.width = squareSize * 2
+	canvas.height = squareSize * 2
+	let ctx = canvas.getContext('2d')
+	ctx.fillStyle = 'rgba(0, 0, 255, 0.5)'
+	ctx.beginPath()
+	ctx.rect(squareSize / 2, squareSize / 2, squareSize, squareSize)
+	ctx.fill()
+	ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
+	ctx.beginPath()
+	ctx.arc(x + 100, y + 100, r, 0, 2 * Math.PI)
+	ctx.fill()
+
 	let tr = $('<tr></tr>')
 	tr.append(`<td>${generation}</td>`)
 	tr.append(`<td>${pop[0].fitness.toPrecision(5)}</td>`)
 	tr.append(element)
 	tr.append(`<td>x:${x}, y:${y}, r:${r}</td>`)
+	let td = $('<td></td>')
+	td.append(canvas)
+	tr.append(td)
 	$('#results tbody').prepend(tr)
 
 	this.lastValue = currentValue
