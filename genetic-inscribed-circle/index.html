@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>genetic-js example</title>
+		<link rel="stylesheet" href="./main.css" />
+		<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+		<script src="./genetic.js"></script>
+		<script src="./index.js"></script>
+	</head>
+	<body>
+		<div>
+			<label>Max iterations:</label>
+			<input id="iterations" type="number" value="1000" />
+			<br />
+			<label>Population Size:</label>
+			<input id="size" type="number" value="100" />
+			<br />
+			<label>Crossover probability:</label>
+			<input id="crossover" type="number" value="0.5" />
+			<br />
+			<label>Mutation probability:</label>
+			<input id="mutation" type="number" value="0.5" />
+			<br />
+			<label>Notification Step:</label>
+			<input id="skip" type="number" value="5" />
+			<br />
+		</div>
+		<button id="solve">Solve</button>
+		<table id="results">
+			<thead>
+				<tr>
+					<th>Generation</th>
+					<th>Fitness</th>
+					<th>Solution</th>
+					<th>Decoded Values</th>
+				</tr>
+			</thead>
+			<tbody style="font-family: monospace"></tbody>
+		</table>
+	</body>
+</html>
