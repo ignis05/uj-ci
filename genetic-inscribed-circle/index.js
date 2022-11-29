@@ -16,18 +16,25 @@ genetic.seed = function () {
 
 // function called when an individual has been selected for mutation
 genetic.mutate = function (entity) {
-	// 50/50 between small and large mutation
-	if (Math.random < 0.5) {
-		// replace random bit
-		let i = Math.floor(Math.random() * entity.length)
-		return entity.substring(0, i) + entity[i] == '1' ? '0' : '1' + entity.substring(i + 1)
-	} else {
-		// replace random coordinate
-		let random = ['x', 'y', 'z'][Math.floor(Math.random() * 3)]
-		if (random == 'x') return Math.random().toString('2').slice(2, 11) + entity.substring(9, 27)
-		else if (random == 'y') return entity.substring(0, 9) + Math.random().toString('2').slice(2, 11) + entity.substring(18, 27)
-		else if (random == 'z') return entity.substring(0, 18) + Math.random().toString('2').slice(2, 11)
+	// random 1-10 increment
+	function getIncrementedString(binaryString) {
+		let unsigned_val = parseInt(binaryString, 2) + randomIncrement * (Math.random() < 0.5 ? 1 : -1)
+
+		if (unsigned_val < 0) unsigned_val = 0 // block converting negative to bin
+
+		// back to string, fill left with zeros
+		let str = unsigned_val.toString('2')
+		while (str.length < 8) str = '0' + str
+
+		return str
 	}
+
+	let random = ['x', 'y', 'z'][Math.floor(Math.random() * 3)]
+	let randomIncrement = Math.floor(Math.random() * 10)
+
+	if (random == 'x') return entity[0] + getIncrementedString(entity.slice(1, 9)) + entity.substring(9, 27)
+	else if (random == 'y') return entity.substring(0, 10) + getIncrementedString(entity.slice(10, 18)) + entity.substring(18, 27)
+	else if (random == 'z') return entity.substring(0, 19) + getIncrementedString(entity.slice(19))
 }
 
 // function called when two individuals are selected for mating
