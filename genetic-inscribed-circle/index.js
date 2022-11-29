@@ -64,7 +64,9 @@ genetic.crossover = function (mother, father) {
 
 // function used to determine a fitness score for an individual
 genetic.fitness = function (entity) {
-	const squareSize = 100
+	const squareSize = this.userData.squareParams.size
+	const xOffset = this.userData.squareParams.x
+	const yOffset = this.userData.squareParams.y
 
 	// parse integers from bits
 	let xRaw = entity.slice(0, 9)
@@ -78,10 +80,10 @@ genetic.fitness = function (entity) {
 
 	// calculate score
 	const halfSize = squareSize / 2
-	let xPenalty = Math.abs(halfSize - (x + r))
-	let yPenalty = Math.abs(halfSize - (y + r))
-	let xPenalty2 = Math.abs(0 - halfSize - (x - r))
-	let yPenalty2 = Math.abs(0 - halfSize - (y - r))
+	let xPenalty = Math.abs(halfSize + xOffset - (x + r))
+	let yPenalty = Math.abs(halfSize + yOffset - (y + r))
+	let xPenalty2 = Math.abs(xOffset - halfSize - (x - r))
+	let yPenalty2 = Math.abs(yOffset - halfSize - (y - r))
 	return r - xPenalty - yPenalty - xPenalty2 - yPenalty2
 }
 
@@ -90,7 +92,7 @@ genetic.generation = function (pop, generation, stats) {
 	if (this.prevPop && pop[0].entity == this.prevPop[0].entity) this.noChangeStreak += 1
 	else this.noChangeStreak = 0
 
-	if (this.noChangeStreak == 10) return false
+	if (this.noChangeStreak >= this.userData.stop) return false
 
 	this.prevPop = pop
 	return true
@@ -117,7 +119,10 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	let y = (yRaw[0] == '1' ? 1 : -1) * parseInt(yRaw.slice(1), 2)
 	let r = (rRaw[0] == '1' ? 1 : -1) * parseInt(rRaw.slice(1), 2)
 
-	const squareSize = 100
+	const squareSize = this.userData.squareParams.size
+	const offset = squareSize / 2
+	const xOffset = this.userData.squareParams.x
+	const yOffset = this.userData.squareParams.y
 	let canvas = document.createElement('canvas')
 	// canvas.style = 'border: 1px solid black'
 	canvas.width = squareSize * 2
@@ -125,11 +130,11 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	let ctx = canvas.getContext('2d')
 	ctx.fillStyle = 'rgba(0, 0, 255, 0.5)'
 	ctx.beginPath()
-	ctx.rect(squareSize / 2, squareSize / 2, squareSize, squareSize)
+	ctx.rect(offset, offset, squareSize, squareSize)
 	ctx.fill()
 	ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
 	ctx.beginPath()
-	ctx.arc(x + 100, y + 100, r, 0, 2 * Math.PI)
+	ctx.arc(x + offset * 2 - xOffset, y + offset * 2 - yOffset, r, 0, 2 * Math.PI)
 	ctx.fill()
 
 	let tr = $('<tr></tr>')
@@ -152,8 +157,6 @@ $(() => {
 
 		$('#results tbody').html('')
 
-		const solutionText = $('#quote').val()
-
 		const config = {
 			iterations: parseFloat($('#iterations').val()),
 			size: parseFloat($('#size').val()),
@@ -162,6 +165,14 @@ $(() => {
 			skip: parseFloat($('#skip').val()),
 		}
 
-		genetic.evolve(config, { solution: solutionText })
+		const params = {
+			x: parseFloat($('#x').val()),
+			y: parseFloat($('#y').val()),
+			size: parseFloat($('#width').val()),
+		}
+
+		const stop = parseFloat($('#stop').val())
+
+		genetic.evolve(config, { squareParams: params, stop })
 	})
 })
