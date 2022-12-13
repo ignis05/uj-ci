@@ -24,7 +24,7 @@ genetic.seed = function () {
 // function called when an individual has been selected for mutation
 genetic.mutate = function (entity) {
 	let i = Math.floor(Math.random() * (entity.length - 1))
-	
+
 	let replace = entity.charAt(i) == '1' ? '0' : '1'
 	let res = entity.slice(0, i) + replace + entity.slice(i + 1)
 	return res
@@ -165,6 +165,8 @@ $(() => {
 
 		const stop = parseFloat($('#stop').val())
 
-		genetic.evolve(config, { squareParams: params, stop, bitSize: 16, helpers: { decodeCoords } })
+		const bitSize = parseInt($('#bitSize').val())
+
+		genetic.evolve(config, { squareParams: params, stop, bitSize, helpers: { decodeCoords } })
 	})
 })
