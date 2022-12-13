@@ -10,78 +10,58 @@ genetic.select2 = Genetic.Select2.Tournament2
 
 // function that creates an individual
 genetic.seed = function () {
-	// 9 bits * 3 (x,y,r) = 27 bits
-	return Math.random().toString('2').slice(2, 29)
+	// 3 binary numbers, each on the same amount of bits (x,y,r)
+	let res = ''
+	while (res.length < this.userData.bitSize * 3) {
+		res += Math.random()
+			.toString('2')
+			.slice(2, 2 + this.userData.bitSize * 3 - res.length)
+	}
+
+	return res
 }
 
 // function called when an individual has been selected for mutation
 genetic.mutate = function (entity) {
-	// random 1-10 increment
-	function getIncrementedString(binaryString) {
-		let unsigned_val = parseInt(binaryString, 2) + randomIncrement * (Math.random() < 0.5 ? 1 : -1)
-
-		if (unsigned_val < 0) unsigned_val = 0 // block converting negative to bin
-
-		// back to string, fill left with zeros
-		let str = unsigned_val.toString('2')
-		while (str.length < 8) str = '0' + str
-
-		return str
-	}
-
-	let random = ['x', 'y', 'z'][Math.floor(Math.random() * 3)]
-	let randomIncrement = Math.floor(Math.random() * 10)
-
-	if (random == 'x') return entity[0] + getIncrementedString(entity.slice(1, 9)) + entity.substring(9, 27)
-	else if (random == 'y') return entity.substring(0, 10) + getIncrementedString(entity.slice(10, 18)) + entity.substring(18, 27)
-	else if (random == 'z') return entity.substring(0, 19) + getIncrementedString(entity.slice(19))
+	let i = Math.floor(Math.random() * (entity.length - 1))
+	
+	let replace = entity.charAt(i) == '1' ? '0' : '1'
+	let res = entity.slice(0, i) + replace + entity.slice(i + 1)
+	return res
 }
 
 // function called when two individuals are selected for mating
 genetic.crossover = function (mother, father) {
-	let mother_coords = {
-		x: mother.slice(0, 9),
-		y: mother.slice(9, 18),
-		z: mother.slice(18, 27),
+	// two-point crossover
+
+	// selects 2 random indexes, ca<cb
+	var len = mother.length
+	var lowerIndex = Math.floor(Math.random() * len)
+	var upperIndex = Math.floor(Math.random() * len)
+	if (lowerIndex > upperIndex) {
+		var tmp = upperIndex
+		upperIndex = lowerIndex
+		lowerIndex = tmp
 	}
 
-	let father_coords = {
-		x: father.slice(0, 9),
-		y: father.slice(9, 18),
-		z: father.slice(18, 27),
-	}
+	// creates children from substrings of parents
+	var son = father.substr(0, lowerIndex) + mother.substr(lowerIndex, upperIndex - lowerIndex) + father.substr(upperIndex)
+	var daughter = mother.substr(0, lowerIndex) + father.substr(lowerIndex, upperIndex - lowerIndex) + mother.substr(upperIndex)
 
-	let random = ['x', 'y', 'z'][Math.floor(Math.random() * 3)]
-
-	let son = {}
-	let daughter = {}
-	for (let [key, val] of Object.entries(father_coords))
-		if (key == random) son[key] = val
-		else daughter[key] = val
-
-	for (let [key, val] of Object.entries(mother_coords))
-		if (key != random) son[key] = val
-		else daughter[key] = val
-
-	son = son.x + son.y + son.z
-	daughter = daughter.x + daughter.y + daughter.z
+	// console.log(`${father.length},${mother.length} -> ${son.length},${daughter.length}`)
 
 	return [son, daughter]
 }
 
 // function used to determine a fitness score for an individual
 genetic.fitness = function (entity) {
+	if (!entity) console.log(entity)
 	const squareSize = this.userData.squareParams.size
 	const xOffset = this.userData.squareParams.x
 	const yOffset = this.userData.squareParams.y
 
 	// parse integers from bits
-	let xRaw = entity.slice(0, 9)
-	let yRaw = entity.slice(9, 18)
-	let rRaw = entity.slice(18, 27)
-	let x = (xRaw[0] == '1' ? 1 : -1) * parseInt(xRaw.slice(1), 2)
-	let y = (yRaw[0] == '1' ? 1 : -1) * parseInt(yRaw.slice(1), 2)
-	let r = (rRaw[0] == '1' ? 1 : -1) * parseInt(rRaw.slice(1), 2)
+	let { x, y, r } = this.userData.helpers.decodeCoords(entity, this.userData.bitSize)
 
 	if (isNaN(x) || isNaN(y) || isNaN(r)) return -Infinity // if number failed to be converted to a valid int
 
@@ -119,17 +99,12 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 		element.append(`<span style="${style}">${currentValue[i]}</span>`)
 	}
 
-	let xRaw = currentValue.slice(0, 9)
-	let yRaw = currentValue.slice(9, 18)
-	let rRaw = currentValue.slice(18, 27)
-	let x = (xRaw[0] == '1' ? 1 : -1) * parseInt(xRaw.slice(1), 2)
-	let y = (yRaw[0] == '1' ? 1 : -1) * parseInt(yRaw.slice(1), 2)
-	let r = (rRaw[0] == '1' ? 1 : -1) * parseInt(rRaw.slice(1), 2)
+	let { x, y, r } = this.userData.helpers.decodeCoords(currentValue, this.userData.bitSize)
 
-	const squareSize = this.userData.squareParams.size
+	const squareSize = this.userData.squareParams.size / 10
 	const offset = squareSize / 2
-	const xOffset = this.userData.squareParams.x
-	const yOffset = this.userData.squareParams.y
+	const xOffset = this.userData.squareParams.x / 10
+	const yOffset = this.userData.squareParams.y / 10
 	let canvas = document.createElement('canvas')
 	// canvas.style = 'border: 1px solid black'
 	canvas.width = squareSize * 2
@@ -141,20 +116,30 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	ctx.fill()
 	ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
 	ctx.beginPath()
-	ctx.arc(x + offset * 2 - xOffset, y + offset * 2 - yOffset, r, 0, 2 * Math.PI)
+	if (r > 0) ctx.arc(x / 10 + offset * 2 - xOffset, y / 10 + offset * 2 - yOffset, r / 10, 0, 2 * Math.PI)
 	ctx.fill()
 
 	let tr = $('<tr></tr>')
 	tr.append(`<td>${generation}</td>`)
-	tr.append(`<td>${pop[0].fitness.toPrecision(5)}</td>`)
+	tr.append(`<td>${pop[0].fitness?.toPrecision(5)}</td>`)
 	tr.append(element)
-	tr.append(`<td>x:${x}, y:${y}, r:${r}</td>`)
+	tr.append(`<td>x:${x / 1000}, y:${y / 1000}, r:${r / 1000}</td>`)
 	let td = $('<td></td>')
 	td.append(canvas)
 	tr.append(td)
 	$('#results tbody').prepend(tr)
 
 	this.lastValue = currentValue
+}
+
+function decodeCoords(str, bitSize) {
+	let xRaw = str.slice(0, bitSize)
+	let yRaw = str.slice(bitSize, bitSize * 2)
+	let rRaw = str.slice(bitSize * 2, bitSize * 3)
+	let x = (xRaw[0] == '1' ? 1 : -1) * parseInt(xRaw.slice(1), 2)
+	let y = (yRaw[0] == '1' ? 1 : -1) * parseInt(yRaw.slice(1), 2)
+	let r = (rRaw[0] == '1' ? 1 : -1) * parseInt(rRaw.slice(1), 2)
+	return { x, y, r }
 }
 
 // jquery document.ready - binds listeners to ui
@@ -173,13 +158,13 @@ $(() => {
 		}
 
 		const params = {
-			x: parseFloat($('#x').val()),
-			y: parseFloat($('#y').val()),
-			size: parseFloat($('#width').val()),
+			x: Math.round(parseFloat($('#x').val()) * 1000),
+			y: Math.round(parseFloat($('#y').val()) * 1000),
+			size: Math.round(parseFloat($('#width').val()) * 1000),
 		}
 
 		const stop = parseFloat($('#stop').val())
 
-		genetic.evolve(config, { squareParams: params, stop })
+		genetic.evolve(config, { squareParams: params, stop, bitSize: 16, helpers: { decodeCoords } })
 	})
 })
