@@ -17,10 +17,10 @@
 		</div>
 		<div>
 			<label>Vertices:</label>
-			<input id="vertices" type="number" value="4" />
+			<input id="vertices" type="number" value="6" />
 			<br />
 			<label>Connections:</label>
-			<input id="connections" type="text" value="1 3 1 4 2 3 2 4" />
+			<input id="connections" type="text" value="1 2 2 3 3 4 4 5 5 6 6 1 2 4 3 5 1 3 3 6" />
 			<br />
 			<label>Bits per variable:</label>
 			<input id="bitSize" type="number" value="5" step="1" />
@@ -29,22 +29,22 @@
 		<br />
 		<div>
 			<label>Max iterations:</label>
-			<input id="iterations" type="number" value="1000" />
+			<input id="iterations" type="number" value="5000" />
 			<br />
 			<label>Population Size:</label>
 			<input id="size" type="number" value="100" />
 			<br />
 			<label>Crossover probability:</label>
-			<input id="crossover" type="number" value="0.3" />
+			<input id="crossover" type="number" value="0.1" />
 			<br />
 			<label>Mutation probability:</label>
-			<input id="mutation" type="number" value="0.3" />
+			<input id="mutation" type="number" value="0.5" />
 			<br />
 			<label>Notification Step:</label>
 			<input id="skip" type="number" value="5" />
 			<br />
 			<label>Stop after x unchanged populations:</label>
-			<input id="stop" type="number" value="5" />
+			<input id="stop" type="number" value="100" />
 			<br />
 		</div>
 		<button id="solve" style="margin-bottom: 10px; font-size: 1.2em">Solve</button>

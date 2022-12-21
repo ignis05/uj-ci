@@ -63,14 +63,23 @@ genetic.fitness = function (entity) {
 	const coords = decodeCoords(entity, bitSize)
 	const connectionArr = connections.map((conn) => conn.map((c) => coords[c - 1]))
 
+	// discard specimens where vertices are on top of each other
+	for (let i = 0; i < coords.length; i++) {
+		for (let j = i + 1; j < coords.length; j++) {
+			if (coords[i].x == coords[j].x && coords[i].y == coords[j].y) return -Infinity
+		}
+	}
+
 	// -1 fitness for each intersecting pair of lines
 	for (let i = 0; i < connectionArr.length; i++) {
-		for (let j = parseInt(i) + 1; j < connectionArr.length; j++) {
+		for (let j = i + 1; j < connectionArr.length; j++) {
 			let [a, b] = connectionArr[i]
 			let [c, d] = connectionArr[j]
 			if (intersects(a, b, c, d)) fitness--
 		}
 	}
+
+	coords
 
 	return fitness
 }
@@ -143,7 +152,9 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	tr.append(`<td>${generation}</td>`)
 	tr.append(`<td>${pop[0].fitness}</td>`)
 	tr.append(element)
-	tr.append(`<td>${coords.map((c, i) => `W(${i + 1})={${c.x}, ${c.y}}`).join('<br/>')}</td>`)
+	tr.append(
+		`<td><div style="max-height:500px;overflow-y:auto;">${coords.map((c, i) => `W(${i + 1})={${c.x}, ${c.y}}`).join('<br/>')}</div></td>`
+	)
 	let td = $('<td></td>')
 	td.append(canvas)
 	tr.append(td)
