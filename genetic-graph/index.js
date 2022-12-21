@@ -98,7 +98,7 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	this.lastValue = this.lastValue || currentValue
 	// if (pop != 0 && currentValue == this.lastValue) return
 
-	let element = $('<td></td>')
+	let element = $('<td style="overflow-wrap: break-word; max-width:200px;"></td>')
 
 	for (let i in currentValue) {
 		let style = currentValue[i] == this.lastValue[i] ? 'background: transparent;' : 'background: #2196F3; color: #fff;'
@@ -108,20 +108,20 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	const { bitSize, vertices, connections } = this.userData.params
 	const { decodeCoords, intersects } = this.userData.helpers
 
-	let coords = decodeCoords(currentValue, bitSize)
-	let connectionArr = connections.map((conn) => conn.map((c) => coords[c - 1]))
+	const coords = decodeCoords(currentValue, bitSize)
+	const connectionArr = connections.map((conn) => conn.map((c) => coords[c - 1]))
 
-	let maxVal = Math.max(...coords.map((v) => (v.x > v.y ? v.x : v.y)))
-
-	const width = maxVal * 11
-	const height = maxVal * 11
-	const offset = maxVal / 2
+	const maxVal = Math.max(...coords.map((v) => (v.x > v.y ? v.x : v.y)))
+	const areaSize = 500
+	const offset = 10
 	const nodeRadius = 10
-	const scaleCoord = (c) => offset + c * 10
-	let canvas = document.createElement('canvas')
-	// canvas.style = 'border: 1px solid black'
-	canvas.width = width
-	canvas.height = height
+	const step = (areaSize - offset * 2) / maxVal
+	const scaleCoord = (c) => offset + c * step
+	
+	const canvas = document.createElement('canvas')
+	canvas.style = 'border: 1px solid black'
+	canvas.width = areaSize
+	canvas.height = areaSize
 	let ctx = canvas.getContext('2d')
 
 	ctx.strokeStyle = 'rgba(0, 0, 0, 255)'
@@ -138,14 +138,14 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 		ctx.beginPath()
 		ctx.arc(scaleCoord(vertex.x), scaleCoord(vertex.y), nodeRadius, 0, 2 * Math.PI)
 		ctx.fill()
-		ctx.strokeText(`${i + 1}`, scaleCoord(vertex.x) - nodeRadius / 4, scaleCoord(vertex.y))
+		ctx.strokeText(`${i + 1}`, scaleCoord(vertex.x) - nodeRadius / 2, scaleCoord(vertex.y) + nodeRadius / 4)
 	}
 
 	let tr = $('<tr></tr>')
 	tr.append(`<td>${generation}</td>`)
-	tr.append(`<td>${pop[0].fitness?.toPrecision(5)}</td>`)
+	tr.append(`<td>${pop[0].fitness}</td>`)
 	tr.append(element)
-	tr.append(`<td>${JSON.stringify(coords)}</td>`)
+	tr.append(`<td>${coords.map((c, i) => `W(${i + 1})={${c.x}, ${c.y}}`).join('<br/>')}</td>`)
 	let td = $('<td></td>')
 	td.append(canvas)
 	tr.append(td)
