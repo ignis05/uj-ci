@@ -186,7 +186,7 @@ $(() => {
 			skip: parseFloat($('#skip').val()),
 		}
 
-		let rawConnections = $('#connections').val().split(' ')
+		let rawConnections = $('#connections').val().split(/\s+/)
 		let connections = []
 		while (rawConnections.length > 0) {
 			let x1 = parseInt(rawConnections.shift())
@@ -206,3 +206,23 @@ $(() => {
 		genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })
 	})
 })
+
+function fileLoadHandler() {
+	var file = document.getElementById('fileInput').files[0]
+	if (file) {
+		var reader = new FileReader()
+		reader.readAsText(file, 'UTF-8')
+		reader.onload = function (evt) {
+			parseFile(evt.target.result)
+		}
+		reader.onerror = function (evt) {
+			window.alert('File loading error')
+		}
+	}
+}
+
+function parseFile(text) {
+	let [firstLine, secondLine, ...rest] = text.split(/\r?\n/)
+	$('#vertices').val(parseInt(firstLine))
+	$('#connections').val(secondLine)
+}
