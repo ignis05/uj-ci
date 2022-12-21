@@ -60,16 +60,14 @@ genetic.fitness = function (entity) {
 	const { decodeCoords, intersects } = this.userData.helpers
 
 	var fitness = 0
+	const coords = decodeCoords(entity, bitSize)
+	const connectionArr = connections.map((conn) => conn.map((c) => coords[c - 1]))
 
-	let coords = decodeCoords(entity, bitSize)
-
-	let connectionArr = connections.map((conn) => conn.map((c) => coords[c - 1]))
-
-	for (let connection1 of connectionArr) {
-		for (let connection2 of connectionArr) {
-			if (connection1 == connection2) continue
-			let [a, b] = connection1
-			let [c, d] = connection2
+	// -1 fitness for each intersecting pair of lines
+	for (let i = 0; i < connectionArr.length; i++) {
+		for (let j = parseInt(i) + 1; j < connectionArr.length; j++) {
+			let [a, b] = connectionArr[i]
+			let [c, d] = connectionArr[j]
 			if (intersects(a, b, c, d)) fitness--
 		}
 	}
@@ -117,7 +115,7 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	const nodeRadius = 10
 	const step = (areaSize - offset * 2) / maxVal
 	const scaleCoord = (c) => offset + c * step
-	
+
 	const canvas = document.createElement('canvas')
 	canvas.style = 'border: 1px solid black'
 	canvas.width = areaSize
