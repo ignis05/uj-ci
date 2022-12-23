@@ -266,6 +266,14 @@ $(() => {
 		while (rawConnections.length > 0) {
 			let x1 = parseInt(rawConnections.shift())
 			let x2 = parseInt(rawConnections.shift())
+			if (isNaN(x1) || isNaN(x2)) {
+				window.alert(`Found connection with beginning vertex but no end vertex`)
+				throw 'invalid connections'
+			}
+			if (x1 == x2) {
+				window.alert(`Invalid connection: ${x1} with ${x2}`)
+				throw 'self connection'
+			}
 			connections.push([x1, x2])
 		}
 
