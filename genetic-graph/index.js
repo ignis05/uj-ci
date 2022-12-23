@@ -179,11 +179,24 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	canvas.height = areaSize
 	let ctx = canvas.getContext('2d')
 
-	ctx.strokeStyle = 'rgba(0, 0, 0, 255)'
-	for (let [v1, v2] of connectionArr) {
+	// check which connections are intersecting
+	const isConIntersecting = new Array(connectionArr.length).fill(false)
+	for (let i = 0; i < connectionArr.length; i++) {
+		for (let j = i + 1; j < connectionArr.length; j++) {
+			let [a, b] = connectionArr[i]
+			let [c, d] = connectionArr[j]
+			if (intersects(a, b, c, d)) {
+				isConIntersecting[i] = true
+				isConIntersecting[j] = true
+			}
+		}
+	}
+
+	for (let [i, [v1, v2]] of connectionArr.entries()) {
 		ctx.beginPath()
 		ctx.moveTo(scaleCoord(v1.x), scaleCoord(v1.y))
 		ctx.lineTo(scaleCoord(v2.x), scaleCoord(v2.y))
+		ctx.strokeStyle = isConIntersecting[i] ? 'rgba(255, 0, 0, 255)' : 'rgba(0, 0, 0, 255)'
 		ctx.stroke()
 	}
 
@@ -203,6 +216,13 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	tr.append(
 		`<td><div style="max-height:500px;overflow-y:auto;">${coords.map((c, i) => `W(${i + 1})={${c.x}, ${c.y}}`).join('<br/>')}</div></td>`
 	)
+
+	const intersectingConnections = []
+	for (let [i, c] of connectionArr.entries()) {
+		if (!isConIntersecting[i]) continue
+		intersectingConnections.push(`Connection W${connections[i][0]}(${c[0].x}, ${c[0].y}) with W${connections[i][1]}(${c[1].x}, ${c[1].y})`)
+	}
+	tr.append(`<td><div style="max-height:500px;overflow-y:auto;">${intersectingConnections.join('<br/>')}</div></td>`)
 	let td = $('<td></td>')
 	td.append(canvas)
 	tr.append(td)
@@ -226,6 +246,9 @@ function intersects(A, B, C, D) {
 	function ccw(A, B, C) {
 		return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)
 	}
+
+	// common start or end point
+	if (A == C || A == D || B == C || B == D) return false
 
 	return ccw(A, C, D) != ccw(B, C, D) && ccw(A, B, C) != ccw(A, B, D)
 }
