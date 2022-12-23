@@ -21,8 +21,8 @@ genetic.seed = function () {
 	return res
 }
 
-// function called when an individual has been selected for mutation
-genetic.mutate = function (entity) {
+// random bit mutation
+function randomBitMutate(entity) {
 	let i = Math.floor(Math.random() * (entity.length - 1))
 
 	let replace = entity.charAt(i) == '1' ? '0' : '1'
@@ -30,10 +30,27 @@ genetic.mutate = function (entity) {
 	return res
 }
 
-// function called when two individuals are selected for mating
-genetic.crossover = function (mother, father) {
-	// two-point crossover
+// random position mutation - randomizes x and y of a random node
+function randomPosMutate(entity) {
+	const { bitSize, vertices, connections } = this.userData.params
+	const { decodeCoords, intersects } = this.userData.helpers
 
+	const posLength = bitSize * 2
+	let newPos = ''
+	while (newPos.length < posLength) {
+		newPos += Math.random()
+			.toString('2')
+			.slice(2, 2 + posLength - newPos.length)
+	}
+
+	let vertexI = Math.floor(Math.random() * (vertices - 1))
+	let realI = vertexI * posLength
+
+	return entity.slice(0, realI) + newPos + entity.slice(realI + posLength)
+}
+
+// two-point crossover
+function twoPointCrossover(mother, father) {
 	// selects 2 random indexes, ca<cb
 	var len = mother.length
 	var lowerIndex = Math.floor(Math.random() * len)
@@ -48,14 +65,45 @@ genetic.crossover = function (mother, father) {
 	var son = father.substr(0, lowerIndex) + mother.substr(lowerIndex, upperIndex - lowerIndex) + father.substr(upperIndex)
 	var daughter = mother.substr(0, lowerIndex) + father.substr(lowerIndex, upperIndex - lowerIndex) + mother.substr(upperIndex)
 
-	// console.log(`${father.length},${mother.length} -> ${son.length},${daughter.length}`)
+	return [son, daughter]
+}
+
+// k-point crossover - k is placed at the end of each coordinate set
+function kPointCrossover(mother, father) {
+	const { bitSize, vertices, connections } = this.userData.params
+	const posLength = bitSize * 2
+
+	var son = ''
+	var daughter = ''
+
+	for (let vertexI = 0; vertexI < vertices; vertexI++) {
+		let i = vertexI * posLength
+
+		// create children fmfmfmf and mfmfmfm
+		if (i % 2) {
+			son += father.slice(i, i + posLength)
+			daughter += mother.slice(i, i + posLength)
+		} else {
+			son += mother.slice(i, i + posLength)
+			daughter += father.slice(i, i + posLength)
+		}
+	}
+
+	if (son.length != daughter.length || father.length != son.length) {
+		console.log('parents:')
+		console.log(father, father.length)
+		console.log(mother, mother.length)
+		console.log('childen:')
+		console.log(son, son.length)
+		console.log(daughter, daughter.length)
+		throw 'k-point crossover error'
+	}
+
 	return [son, daughter]
 }
 
 // function used to determine a fitness score for an individual
 genetic.fitness = function (entity) {
-	if (!entity) console.log(entity)
-
 	const { bitSize, vertices, connections } = this.userData.params
 	const { decodeCoords, intersects } = this.userData.helpers
 
@@ -210,6 +258,23 @@ $(() => {
 		}
 
 		const stop = parseFloat($('#stop').val())
+
+		switch ($('#crossoverFunc').val()) {
+			case '2point':
+				genetic.crossover = twoPointCrossover
+				break
+			case 'kPoint':
+				genetic.crossover = kPointCrossover
+				break
+		}
+		switch ($('#mutationFunc').val()) {
+			case 'randomBit':
+				genetic.mutate = randomBitMutate
+				break
+			case 'position':
+				genetic.mutate = randomPosMutate
+				break
+		}
 
 		console.log('starting algorithm')
 		genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })

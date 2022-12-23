@@ -35,10 +35,22 @@
 			<input id="size" type="number" value="100" />
 			<br />
 			<label>Crossover probability:</label>
-			<input id="crossover" type="number" value="0.1" />
+			<input id="crossover" type="number" value="0.2" />
+			<br />
+			<label>Crossover function:</label>
+			<select id="crossoverFunc">
+				<option value="2point">2 point crossover</option>
+				<option value="kPoint" selected>Position crossover</option>
+			</select>
 			<br />
 			<label>Mutation probability:</label>
 			<input id="mutation" type="number" value="0.5" />
+			<br />
+			<label>Mutation function:</label>
+			<select id="mutationFunc">
+				<option value="randomBit">Random bit mutation</option>
+				<option value="position" selected>Random position mutation</option>
+			</select>
 			<br />
 			<label>Notification Step:</label>
 			<input id="skip" type="number" value="5" />
