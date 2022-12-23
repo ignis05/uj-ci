@@ -2,11 +2,6 @@ var genetic = Genetic.create()
 
 // aim for highest fitness possible
 genetic.optimize = Genetic.Optimize.Maximize
-// Tournament2 - selection method, selects 2 random individuals and then chooses one of them that is fitter
-// selects a single individual for survival from a population (evolutionary algorithm)
-genetic.select1 = Genetic.Select1.Tournament2
-// also selects two individuals from a population for mating/crossover (makes algorith genetic)
-genetic.select2 = Genetic.Select2.Tournament2
 
 // function that creates an individual
 genetic.seed = function () {
@@ -298,6 +293,53 @@ $(() => {
 				genetic.mutate = randomPosMutate
 				break
 		}
+
+		switch ($('#select1').val()) {
+			case 'tournament2':
+				genetic.select1 = Genetic.Select1.Tournament2
+				break
+			case 'tournament3':
+				genetic.select1 = Genetic.Select1.Tournament3
+				break
+			case 'fittest':
+				genetic.select1 = Genetic.Select1.Fittest
+				break
+			case 'random':
+				genetic.select1 = Genetic.Select1.Random
+				break
+			case 'randomlin':
+				genetic.select1 = Genetic.Select1.RandomLinearRank
+				break
+			case 'sequential':
+				genetic.select1 = Genetic.Select1.Sequential
+				break
+		}
+
+		switch ($('#select2').val()) {
+			case 'tournament2':
+				genetic.select2 = Genetic.Select2.Tournament2
+				break
+			case 'tournament3':
+				genetic.select2 = Genetic.Select2.Tournament3
+				break
+			case 'random':
+				genetic.select2 = Genetic.Select2.Random
+				break
+			case 'randomlin':
+				genetic.select2 = Genetic.Select2.RandomLinearRank
+				break
+			case 'sequential':
+				genetic.select2 = Genetic.Select2.Sequential
+				break
+			case 'fittestrandom':
+				genetic.select2 = Genetic.Select2.FittestRandom
+				break
+		}
+
+		// selects a single individual for survival from a population (evolutionary algorithm)
+
+		// also selects two individuals from a population for mating/crossover (makes algorith genetic)
+		genetic.select2 = Genetic.Select2.Tournament2
 
 		console.log('starting algorithm')
 		genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })
