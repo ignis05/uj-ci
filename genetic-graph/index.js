@@ -369,11 +369,6 @@ $(() => {
 				break
 		}
 
-		// selects a single individual for survival from a population (evolutionary algorithm)
-
-		// also selects two individuals from a population for mating/crossover (makes algorith genetic)
-		genetic.select2 = Genetic.Select2.Tournament2
-
 		let stat = parseInt($('#stat').val())
 
 		console.log('starting algorithm')
