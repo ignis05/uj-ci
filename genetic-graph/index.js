@@ -143,7 +143,7 @@ genetic.generation = function (pop, gIndex, stats) {
 
 // function called after set amount of generations, can be used to track calculation progress
 // here it creates a row and appends it to the html table
-genetic.notification = function (pop, generation, stats, isFinished) {
+function notification(pop, generation, stats, isFinished) {
 	var currentValue = pop[0].entity
 	this.lastValue = this.lastValue || currentValue
 	// if (pop != 0 && currentValue == this.lastValue) return
@@ -205,7 +205,7 @@ genetic.notification = function (pop, generation, stats, isFinished) {
 	}
 
 	let tr = $('<tr></tr>')
-	tr.append(`<td>${generation}</td>`)
+	tr.append(`<td ${isFinished ? 'style="color:green;font-size:2em"' : ''}>${generation}</td>`)
 	tr.append(`<td>${pop[0].fitness}</td>`)
 	tr.append(element)
 	tr.append(
@@ -248,9 +248,34 @@ function intersects(A, B, C, D) {
 	return ccw(A, C, D) != ccw(B, C, D) && ccw(A, B, C) != ccw(A, B, D)
 }
 
+function statNotify(res) {
+	for (let att of res) {
+		let tr = $('<tr></tr>')
+		tr.append(`<td>${att.generation}</td>`)
+		tr.append(`<td>${att.fitness}</td>`)
+		tr.append(`<td></td>`)
+		tr.append(`<td></td>`)
+		tr.append(`<td></td>`)
+		tr.append(`<td></td>`)
+		$('#results tbody').prepend(tr)
+	}
+
+	const avgFitness = res.reduce((acc, cur) => acc + cur.fitness, 0) / res.length
+	const avgGen = res.reduce((acc, cur) => acc + cur.generation, 0) / res.length
+
+	let tr = $('<tr></tr>')
+		tr.append(`<td>Average: ${avgGen}</td>`)
+		tr.append(`<td>Average: ${avgFitness}</td>`)
+		tr.append(`<td></td>`)
+		tr.append(`<td></td>`)
+		tr.append(`<td></td>`)
+		tr.append(`<td></td>`)
+		$('#results tbody').prepend(tr)
+}
+
 // jquery document.ready - binds listeners to ui
 $(() => {
-	$('#solve').on('click', () => {
+	$('#solve').on('click', async () => {
 		$('#results tbody').html('')
 
 		const config = {
@@ -349,7 +374,28 @@ $(() => {
 		// also selects two individuals from a population for mating/crossover (makes algorith genetic)
 		genetic.select2 = Genetic.Select2.Tournament2
 
+		let stat = parseInt($('#stat').val())
+
 		console.log('starting algorithm')
+		if (stat > 0) {
+			let resArray = []
+			params.skip = 1000
+			for (let i = 1; i <= stat; i++) {
+				let fn = () => {
+					return new Promise((res) => {
+						genetic.notification = function (pop, generation, stats, isFinished) {
+							if (isFinished) res({ fitness: pop[0].fitness, generation })
+						}
+						genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })
+					})
+				}
+				resArray.push(await fn())
+			}
+			console.log(resArray)
+			statNotify(resArray)
+		} else {
+			genetic.notification = notification
+		}
 		genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })
 	})
 })
