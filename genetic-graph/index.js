@@ -237,17 +237,20 @@ function decodeCoords(str, bitSize) {
 	return decoded
 }
 
-// Return true if line segments AB and CD intersect
-function intersects(A, B, C, D) {
-	function ccw(A, B, C) {
-		return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)
+// Return true if line segments p1-p2 and p3-p4 intersect
+function intersects(p1, p2, p3, p4) {
+	function Turn(p1, p2, p3) {
+		let A = (p3.y - p1.y) * (p2.x - p1.x)
+		let B = (p2.y - p1.y) * (p3.x - p1.x)
+		return A > B + Number.EPSILON ? 1 : A + Number.EPSILON < B ? -1 : 0
 	}
 
 	// common start or end point
-	if (A == C || A == D || B == C || B == D) return false
+	if (p1 == p3 || p1 == p4 || p2 == p3 || p2 == p4) return false
 
-	return ccw(A, C, D) != ccw(B, C, D) && ccw(A, B, C) != ccw(A, B, D)
+	return Turn(p1, p3, p4) != Turn(p2, p3, p4) && Turn(p1, p2, p3) != Turn(p1, p2, p4)
 }
+
 
 function statNotify(res) {
 	for (let att of res) {
