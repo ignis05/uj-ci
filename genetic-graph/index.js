@@ -130,7 +130,8 @@ genetic.fitness = function (entity) {
 // function called for each generation. returning false, means that the goal was reached and the algorithm should stop
 genetic.generation = function (pop, gIndex, stats) {
 	// 0 intersections
-	if (pop[0].fitness === 0) return false
+	console.log(this.userData.fitnessTarget)
+	if (pop[0].fitness >= this.userData.fitnessTarget || 0) return false
 
 	// 5 generations with unchanged fitness
 	if (pop[0].fitness === this.prevFitness) this.noChangeStreak += 1
@@ -264,13 +265,13 @@ function statNotify(res) {
 	const avgGen = res.reduce((acc, cur) => acc + cur.generation, 0) / res.length
 
 	let tr = $('<tr></tr>')
-		tr.append(`<td>Average: ${avgGen}</td>`)
-		tr.append(`<td>Average: ${avgFitness}</td>`)
-		tr.append(`<td></td>`)
-		tr.append(`<td></td>`)
-		tr.append(`<td></td>`)
-		tr.append(`<td></td>`)
-		$('#results tbody').prepend(tr)
+	tr.append(`<td>Average: ${avgGen}</td>`)
+	tr.append(`<td>Average: ${avgFitness}</td>`)
+	tr.append(`<td></td>`)
+	tr.append(`<td></td>`)
+	tr.append(`<td></td>`)
+	tr.append(`<td></td>`)
+	$('#results tbody').prepend(tr)
 }
 
 // jquery document.ready - binds listeners to ui
@@ -309,6 +310,7 @@ $(() => {
 		}
 
 		const stop = parseFloat($('#stop').val())
+		const fitnessTarget = parseFloat($('#fitStop').val())
 
 		switch ($('#crossoverFunc').val()) {
 			case '2point':
@@ -381,7 +383,7 @@ $(() => {
 						genetic.notification = function (pop, generation, stats, isFinished) {
 							if (isFinished) res({ fitness: pop[0].fitness, generation })
 						}
-						genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })
+						genetic.evolve(config, { params: params, stop, fitnessTarget, helpers: { decodeCoords, intersects } })
 					})
 				}
 				resArray.push(await fn())
@@ -391,7 +393,7 @@ $(() => {
 		} else {
 			genetic.notification = notification
 		}
-		genetic.evolve(config, { params: params, stop, helpers: { decodeCoords, intersects } })
+		genetic.evolve(config, { params: params, stop, fitnessTarget, helpers: { decodeCoords, intersects } })
 	})
 })
 
