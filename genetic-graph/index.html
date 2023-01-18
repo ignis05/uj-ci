@@ -30,9 +30,9 @@
 		<div>
 			<label>Selection for survival:</label>
 			<select id="select1">
-				<option value="tournament2" selected>Tournament 2</option>
+				<option value="tournament2">Tournament 2</option>
 				<option value="tournament3">Tournament 3</option>
-				<option value="fittest">Fittest</option>
+				<option value="fittest" selected>Fittest</option>
 				<option value="random">Random</option>
 				<option value="randomlin">RandomLinearRank</option>
 				<option value="sequential">Sequential</option>
@@ -40,10 +40,10 @@
 			<br />
 			<label>Selection for crossover:</label>
 			<select id="select2">
-				<option value="tournament2" selected>Tournament 2</option>
+				<option value="tournament2">Tournament 2</option>
 				<option value="tournament3">Tournament 3</option>
 				<option value="random">Random</option>
-				<option value="randomlin">RandomLinearRank</option>
+				<option value="randomlin" selected>RandomLinearRank</option>
 				<option value="sequential">Sequential</option>
 				<option value="fittestrandom">FittestWithRandom</option>
 			</select>
@@ -55,7 +55,7 @@
 			<input id="size" type="number" value="100" />
 			<br />
 			<label>Crossover probability:</label>
-			<input id="crossover" type="number" value="0.2" />
+			<input id="crossover" type="number" value="0.4" />
 			<br />
 			<label>Crossover function:</label>
 			<select id="crossoverFunc">
@@ -64,7 +64,7 @@
 			</select>
 			<br />
 			<label>Mutation probability:</label>
-			<input id="mutation" type="number" value="0.5" />
+			<input id="mutation" type="number" value="0.8" />
 			<br />
 			<label>Mutation function:</label>
 			<select id="mutationFunc">
